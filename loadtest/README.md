@@ -4,17 +4,11 @@ This folder contains all scripts and data used to perform load testing on the HR
 
 ## 🧪 What’s Included
 
-- **Hardhat Test Scripts** (`simulateLoadTest.js`, `simulateLoadTest2.js`):  
+- **Hardhat Test Scripts** (`simulateLoadTest.js`):  
   Scripts that deploy smart contracts and simulate the entire certification process for multiple equipment items.
 
 - **loadtest_results.json**:  
   Output JSON containing execution time for each equipment certification (used for plotting performance metrics).
-
-- **loadtest_results.csv**:  
-  CSV version of the JSON results for easier integration with data analysis tools like Excel, Pandas, or Google Sheets.
-
-- **Python Plotting Script**:  
-  A script that loads the results and produces visualizations for performance analysis (to be run in Google Colab or locally).
 
 ## 🧪 Test Workflow Simulated
 
@@ -43,14 +37,6 @@ Then execute the load test script:
 npx hardhat run scripts/simulateLoadTest2.js --network localhost
 ```
 
-## 📊 Visualizing Results
-
-The included Python script can be used in Google Colab to:
-
-- Plot equipment certification time
-- Generate average time summaries
-- Compare trends across iterations
-
 ## 📁 Folder Structure
 
 ```
@@ -67,8 +53,6 @@ loadtest/
 - Node.js (v18+ recommended)
 - Hardhat
 - Ethers.js
-- Python 3.8+ (for visualization)
-- Pandas & Matplotlib (if running plotting script)
 
 ## 📬 Contact
 
