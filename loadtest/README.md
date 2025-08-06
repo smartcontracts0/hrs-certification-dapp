@@ -57,11 +57,8 @@ The included Python script can be used in Google Colab to:
 loadtest/
 ├── scripts/
 │   ├── deployAll.js
-│   ├── simulateLoadTest.js
-│   └── simulateLoadTest2.js
+│   ├── simulateLoadTest.js│   
 ├── loadtest_results.json
-├── loadtest_results.csv
-├── plot_results.ipynb  # Optional (Python notebook)
 └── README.md
 ```
 
