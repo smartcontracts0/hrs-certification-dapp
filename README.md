@@ -1,106 +1,102 @@
 # HRS Certification DApp
 
-This repository hosts the source code for a **blockchain-based certification and traceability system** for Hydrogen Refueling Station (HRS) components. The project combines smart contracts (Solidity), decentralized storage (IPFS), and a web frontend (Next.js) to automate and secure the lifecycle of equipment registration, bidding, accreditation, and certification.
+This repository hosts the complete decentralized application (DApp) for managing the certification lifecycle of Hydrogen Refueling Station (HRS) components. The system is implemented using Ethereum smart contracts (Solidity), a modern web frontend (Next.js), and decentralized storage via IPFS.
 
 ## 🔍 Overview
 
-As hydrogen refueling infrastructure expands, the safe and transparent certification of critical components — such as compressors, tanks, and heat exchangers — becomes vital. This project provides a decentralized application (DApp) to ensure traceability, accountability, and compliance across all stakeholders:
-- Equipment Manufacturers
-- Conformity Assessment Bodies (CABs)
-- International Accreditation Bodies (IABs)
-- Local Certification Authorities (LCAs)
+The DApp enables transparent, role-based interaction between stakeholders in the certification process:
+
+- **Manufacturers**: Register equipment, initiate auctions, and request certifications.
+- **Conformity Assessment Bodies (CABs)**: Bid on auctions, submit test results, and upload audit records.
+- **International Accreditation Body (IAB)**: Registers and accredits CABs and manufacturers, and manages test result review.
+- **Local Certification Authority (LCA)**: Reviews submitted test results and makes certification decisions based on audit data.
 
 ## 🚀 Features
 
-- EVM-based smart contracts for:
-  - Entity registration (CABs, manufacturers)
-  - Equipment registration and tracking
-  - Bidding mechanism to select CABs
-  - Accreditation and certification management
-- IPFS integration for secure, off-chain document storage
-- Fully implemented UI with Next.js and React
-- Deployment on Sepolia testnet
-- Slither-based static analysis for smart contract security
-- Cost/gas analysis and optimization
+- Role-based dashboards (dynamic routing based on connected wallet and smart contract role detection)
+- Certification lifecycle including registration, bidding, testing, auditing, accreditation, and certification
+- IPFS integration for off-chain document storage (e.g., equipment data, test results, audit reports)
+- Ethers.js & Wagmi for blockchain interaction
+- Full compatibility with MetaMask on the Sepolia testnet
+- CAB bidding and manufacturer auction flows
+- Audit review mechanism for the LCA
 
 ## 🧱 Smart Contracts
 
-Located in the `/contracts/` directory:
-- `Registration.sol`: Handles entity registration and CAB accreditation
-- `Bidding.sol`: Manages auction-based CAB selection
-- `EquipmentAccreditation.sol`: Manages test result submission and international accreditation
-- `EquipmentCertification.sol`: Handles final local certification
+The smart contracts are found in the `contracts/` directory:
 
-## 🖥️ Frontend (Next.js DApp)
+- `Registration.sol`: Manages manufacturer and CAB registration, and CAB accreditation
+- `Bidding.sol`: Handles auction creation and bidding by CABs
+- `EquipmentAccreditation.sol`: Accepts test results from winning CABs and handles IAB accreditation
+- `EquipmentCertification.sol`: Handles certification decisions and audit submission by CABs
 
-The frontend is implemented in the `src/` directory using:
-- React & TypeScript
-- TailwindCSS for styling
-- Wagmi & RainbowKit for wallet connection
-- Ethers.js for blockchain interactions
+All contracts have been flattened and audited using Slither. See the `audits/` directory for the full report.
 
-## 🛠️ Getting Started
+## 📂 Directory Structure
+
+```
+hrs-dapp/
+├── contracts/                 # Solidity contracts
+├── audits/                   # Slither vulnerability report (PDF)
+├── remix-scenarios/          # Remix IDE testing scenario (scenario.json)
+├── src/                      # DApp frontend
+│   ├── app/                  # Route-specific dashboards and logic
+│   ├── components/           # Reusable UI components (Tabs, Shell, Layout)
+│   ├── hooks/                # Wallet role detection
+│   └── lib/contracts/        # ABIs and deployed contract addresses
+├── public/                   # Static files
+└── README.md                 # You're here
+```
+
+## 🧪 Setup & Deployment
 
 ### Prerequisites
-- Node.js >= 18
-- MetaMask or compatible wallet
-- Sepolia ETH (for testing)
 
-### Install dependencies
+- Node.js ≥ 18
+- MetaMask installed in your browser
+- Sepolia ETH for testing
+- Git
+
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-### Run local development server
+### Start Development Server
 
 ```bash
 npm run dev
 ```
 
-The DApp will be available at [http://localhost:3000](http://localhost:3000)
+Then open: [http://localhost:3000](http://localhost:3000)
 
-## 🧪 Smart Contract Deployment (Hardhat Recommended)
+### Compile & Deploy Contracts (Optional)
 
-1. Install Hardhat:
 ```bash
 npm install --save-dev hardhat
-```
-
-2. Compile contracts:
-```bash
 npx hardhat compile
-```
-
-3. Deploy to Sepolia:
-Update deployment script and `.env` for keys, then run:
-```bash
 npx hardhat run scripts/deploy.js --network sepolia
 ```
 
-## 🔐 Security & Audits
+Update addresses and ABIs in `src/lib/contracts/` after deployment.
 
-- Static analysis via Slither.
-- Common vulnerabilities addressed: reentrancy, unchecked calls, timestamp dependence.
-- See `audits/` directory for detailed results.
+## 🔐 Security
 
-## 📦 Project Structure
+- Slither-based static analysis performed on all contracts
+- Key issues such as reentrancy, access control, and input validation have been addressed
+- Report: `audits/VulnerabilityReport.pdf`
 
-```
-contracts/               # Solidity smart contracts
-src/                     # DApp frontend (Next.js)
-public/                  # Static files
-audits/                  # Security analysis reports
-```
+## 🧾 Additional Artifacts
 
-## 📜 License
+- **Remix Scenario**: `remix-scenarios/scenario.json` includes annotated tests for manual contract interaction.
+- **Audit Logs**: Accessible through the UI for LCA role.
 
-This project is licensed under the MIT License.
+## 📝 License
 
-## 🙌 Acknowledgments
+MIT License
 
-This work is supported by Khalifa University, UAE, and is part of a broader effort to digitize safety and quality assurance in the hydrogen energy sector.
+## 📣 Acknowledgments
 
----
+This work is part of a research project at **Khalifa University**, UAE, focusing on digitized certification and traceability in hydrogen infrastructure.
 
-For further technical details, see our [research paper](https://doi.org/xx.xxxx/x.xxxx.2025.xxxxxx) (pending publication).
