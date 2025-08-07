@@ -1,4 +1,3 @@
-// scripts/simulateLoadTest.js
 const { ethers } = require("hardhat");
 const fs = require("fs");
 
@@ -10,56 +9,82 @@ async function main() {
   const Accreditation = await ethers.getContractFactory("EquipmentAccreditation");
   const Certification = await ethers.getContractFactory("EquipmentCertification");
 
-  const registration = await Registration.deploy();
+  // Deploy contracts
+  const registration = await Registration.connect(deployer).deploy();
   await registration.deployed();
-  console.log("Registration deployed to:", registration.address);
 
-  const bidding = await Bidding.deploy(registration.address);
+  const bidding = await Bidding.connect(deployer).deploy(registration.address);
   await bidding.deployed();
-  console.log("Bidding deployed to:", bidding.address);
 
-  const accreditation = await Accreditation.deploy(bidding.address);
+  const accreditation = await Accreditation.connect(deployer).deploy(bidding.address);
   await accreditation.deployed();
-  console.log("Accreditation deployed to:", accreditation.address);
 
-  const certification = await Certification.deploy(
-    registration.address,
-    accreditation.address
-  );
+  const certification = await Certification.connect(deployer).deploy(registration.address, accreditation.address);
   await certification.deployed();
-  console.log("Certification deployed to:", certification.address);
 
+  console.log("✅ Contracts Deployed");
+
+  // Setup
   await registration.connect(deployer).registerManufacturer(manufacturer.address);
   await registration.connect(deployer).registerCAB("CAB1", cab1.address);
-  await registration.connect(cab1).updateCABDetails("QmTzQ1NsxztTGusvxno7Qh7gXXJ63LJYULS7LuVkgLRZPh");
+  const ipfs = "QmXjY6f9VcPzWZn5Yq7Uu4kDQ6Pf5zKn1tT6LvJ7e8ybHv";
+  await registration.connect(cab1).updateCABDetails(ipfs);
   await registration.connect(deployer).accreditCAB(cab1.address, true);
 
-  const results = [];
+  console.log("✅ Manufacturer and CAB setup complete");
+
   const NUM = 100;
-  const ipfs = "QmTzQ1NsxztTGusvxno7Qh7gXXJ63LJYULS7LuVkgLRZPh";
+  const results = [];
 
-  for (let i = 1; i <= NUM; i++) {
+  for (let i = 0; i < NUM; i++) {
     const start = Date.now();
+    let txCount = 0;
+    let success = true;
+    let equipmentId = null;
 
-    await registration.connect(manufacturer).registerEquipment(i % 2, ipfs);
-    await bidding.connect(manufacturer).createAuction(i);
-    await bidding.connect(cab1).submitBid(i, 100 + i);
-    await bidding.connect(manufacturer).selectBestBid(i, { value: 100 + i });
-    await accreditation.connect(cab1).submitTestResults(i, ipfs);
-    await accreditation.connect(deployer).makeAccreditationDecision(i, 1);
-    await certification.connect(manufacturer).requestCertification(i, cab1.address, ipfs);
-    await certification.connect(deployer).makeCertificationDecision(i, 1);
+    try {
+      const eqType = i % 2;
+      await registration.connect(manufacturer).registerEquipment(eqType, ipfs); txCount++;
+      equipmentId = await registration.equipmentCounter();
+
+      await bidding.connect(manufacturer).createAuction(equipmentId); txCount++;
+      await bidding.connect(cab1).submitBid(i + 1, 100 + i); txCount++;
+      await bidding.connect(manufacturer).selectBestBid(i + 1, { value: 100 + i }); txCount++;
+
+      await accreditation.connect(cab1).submitTestResults(equipmentId, ipfs); txCount++;
+      await accreditation.connect(deployer).makeAccreditationDecision(equipmentId, 1); txCount++;
+      await accreditation.connect(deployer).updateAccreditation(equipmentId, ipfs); txCount++;
+      await accreditation.connect(deployer).confirmUpdatedAccreditation(equipmentId, 1); txCount++;
+
+      await certification.connect(manufacturer).requestCertification(equipmentId, cab1.address, ipfs); txCount++;
+      await certification.connect(deployer).makeCertificationDecision(equipmentId, 1); txCount++;
+      await certification.connect(manufacturer).updateCertification(equipmentId, ipfs); txCount++;
+      await certification.connect(deployer).confirmUpdatedCertification(equipmentId, 1); txCount++;
+      await certification.connect(cab1).submitAuditReport(equipmentId, ipfs); txCount++;
+      await certification.connect(deployer).revokeCertification(equipmentId); txCount++;
+
+    } catch (error) {
+      console.error(`❌ Error at equipment ${equipmentId || i + 1}:`, error.message);
+      success = false;
+    }
 
     const end = Date.now();
-    results.push({ equipmentId: i, time: (end - start) / 1000 });
-    console.log(`✅ Equipment ${i} certified in ${(end - start) / 1000}s`);
+    results.push({
+      equipmentId: equipmentId?.toString() || `failed_${i + 1}`,
+      time: ((end - start) / 1000).toFixed(3),
+      txCount,
+      success
+    });
+
+    const statusMsg = success ? "✅" : "⚠️";
+    console.log(`${statusMsg} Equipment ${equipmentId || i + 1} completed with ${txCount} transactions in ${(end - start) / 1000}s`);
   }
 
-  fs.writeFileSync("loadtest_results.json", JSON.stringify(results, null, 2));
-  console.log(`\nFinished ${NUM} certifications`);
+  fs.writeFileSync("full_loadtest_results.json", JSON.stringify(results, null, 2));
+  console.log("\n🎯 Load test complete.");
 }
 
-main().catch((err) => {
-  console.error(err);
+main().catch((error) => {
+  console.error(error);
   process.exitCode = 1;
 });
