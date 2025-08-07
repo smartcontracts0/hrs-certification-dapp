@@ -23,7 +23,7 @@ For each equipment item (e.g., 100 iterations), the following steps are executed
 7. Submit Certification Request by Manufacturer
 8. Approve Certification by LCA
 
-## 🚀 Running the Tests
+## 🚀 Running the Scripts
 
 Ensure your local Hardhat node is running:
 
@@ -34,7 +34,7 @@ npx hardhat node
 Then execute the load test script:
 
 ```bash
-npx hardhat run scripts/simulateLoadTest2.js --network localhost
+npx hardhat run scripts/simulateLoadTest.js --network localhost
 ```
 
 ## 📁 Folder Structure
