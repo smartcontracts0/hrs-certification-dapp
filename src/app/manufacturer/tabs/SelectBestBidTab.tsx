@@ -22,9 +22,17 @@ export default function SelectBestBidTab() {
       const results = [];
 
       for (let i = 1; i <= total; i++) {
-        const [equipmentId, manufacturer, active, bestBidId] = await contract.getAuctionDetails(i);
+        const [equipmentId, manufacturer, active, bestBidId, bidCounter] = await contract.auctions(i);
+
         if (active && manufacturer.toLowerCase() === address.toLowerCase()) {
-          results.push({ id: i, equipmentId, active, bestBidId });
+          const bids = [];
+
+          for (let j = 1; j <= bidCounter; j++) {
+            const [cab, amount, selected] = await contract.getBidDetails(i, j);
+            bids.push({ id: j, cab, amount: ethers.formatEther(amount), selected });
+          }
+
+          results.push({ id: i, equipmentId, active, bestBidId, bids });
         }
       }
 
@@ -59,11 +67,25 @@ export default function SelectBestBidTab() {
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold">My Active Auctions</h3>
-      <ul className="space-y-3">
+      <ul className="space-y-4">
         {auctions.map((auction) => (
           <li key={auction.id} className="border p-4 rounded">
-            <p>Auction #{auction.id} — Equipment #{auction.equipmentId}</p>
-            <Button className="mt-2" onClick={() => selectBestBid(auction.id)}>
+            <p className="font-medium">Auction #{auction.id} — Equipment #{auction.equipmentId}</p>
+            <div className="mt-2 space-y-1 text-sm">
+              {auction.bids.length > 0 ? (
+                auction.bids.map((bid: any) => (
+                  <div key={bid.id} className="border p-2 rounded bg-gray-50">
+                    <p>Bid #{bid.id}</p>
+                    <p>CAB: {bid.cab}</p>
+                    <p>Amount: {bid.amount} ETH</p>
+                    <p>Status: {bid.selected ? '✅ Selected' : '⏳ Pending'}</p>
+                  </div>
+                ))
+              ) : (
+                <p>No bids placed yet.</p>
+              )}
+            </div>
+            <Button className="mt-4" onClick={() => selectBestBid(auction.id)}>
               Select Best Bid
             </Button>
           </li>

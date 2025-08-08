@@ -39,6 +39,19 @@ export default function RequestCertificationTab() {
     }
   };
 
+  const fetchWinningCAB = async (selectedId: string) => {
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const contract = new ethers.Contract(accreditationAddress, accreditationABI, provider);
+
+      const [, cab] = await contract.getTestResultDetails(parseInt(selectedId));
+      setCabAddress(cab);
+    } catch (err) {
+      console.warn('Failed to fetch CAB address for selected equipment:', err);
+      setCabAddress('');
+    }
+  };
+
   const requestCert = async () => {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -67,6 +80,12 @@ export default function RequestCertificationTab() {
     fetchOwnedEquipment();
   }, []);
 
+  useEffect(() => {
+    if (equipmentId) {
+      fetchWinningCAB(equipmentId);
+    }
+  }, [equipmentId]);
+
   return (
     <div className="space-y-4">
       <Label htmlFor="equipmentId">Your Equipment ID</Label>
@@ -82,11 +101,11 @@ export default function RequestCertificationTab() {
         ))}
       </select>
 
-      <Label htmlFor="cab">CAB Address (winner)</Label>
+      <Label htmlFor="cab">CAB Address (Auto-filled)</Label>
       <Input
         id="cab"
         value={cabAddress}
-        onChange={(e) => setCabAddress(e.target.value)}
+        readOnly
         placeholder="0xCAB..."
       />
 

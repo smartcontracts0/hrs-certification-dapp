@@ -1,16 +1,50 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { accreditationABI, accreditationAddress } from '@/lib/contracts/accreditation';
+import { biddingABI, biddingAddress } from '@/lib/contracts/bidding';
 
 export default function SubmitTestResultsTab() {
   const [equipmentId, setEquipmentId] = useState('');
   const [ipfsHash, setIpfsHash] = useState('');
   const [status, setStatus] = useState<string | null>(null);
+  const [ownedEquipment, setOwnedEquipment] = useState<number[]>([]);
+
+  useEffect(() => {
+    const fetchOwnedEquipment = async () => {
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const userAddress = await signer.getAddress();
+
+        const biddingContract = new ethers.Contract(biddingAddress, biddingABI, provider);
+        const total = await biddingContract.auctionCounter();
+
+        const matches: number[] = [];
+
+        for (let i = 1; i <= total; i++) {
+          try {
+            const winningCAB = await biddingContract.getWinningCAB(i);
+            if (winningCAB.toLowerCase() === userAddress.toLowerCase()) {
+              matches.push(i);
+            }
+          } catch {
+            // Skip if auction doesn't exist or has no winner
+          }
+        }
+
+        setOwnedEquipment(matches);
+      } catch (err) {
+        console.error('Error fetching winning equipment:', err);
+      }
+    };
+
+    fetchOwnedEquipment();
+  }, []);
 
   const submitResults = async () => {
     try {
@@ -32,13 +66,20 @@ export default function SubmitTestResultsTab() {
 
   return (
     <div className="space-y-4">
-      <Label htmlFor="equipmentId">Equipment ID</Label>
-      <Input
+      <Label htmlFor="equipmentId">Select Equipment You Won</Label>
+      <select
         id="equipmentId"
-        placeholder="e.g. 3"
+        className="w-full p-2 border rounded"
         value={equipmentId}
         onChange={(e) => setEquipmentId(e.target.value)}
-      />
+      >
+        <option value="">-- Select Equipment --</option>
+        {ownedEquipment.map((id) => (
+          <option key={id} value={id}>
+            Equipment #{id}
+          </option>
+        ))}
+      </select>
 
       <Label htmlFor="ipfs">Test Results IPFS Hash</Label>
       <Input
@@ -48,7 +89,9 @@ export default function SubmitTestResultsTab() {
         onChange={(e) => setIpfsHash(e.target.value)}
       />
 
-      <Button onClick={submitResults}>Submit Test Results</Button>
+      <Button onClick={submitResults} disabled={!equipmentId || !ipfsHash}>
+        Submit Test Results
+      </Button>
       {status && <p className="text-sm text-gray-600 mt-2">{status}</p>}
     </div>
   );

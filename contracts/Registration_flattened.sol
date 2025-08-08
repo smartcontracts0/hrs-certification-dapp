@@ -1,6 +1,6 @@
+// SPDX-License-Identifier: MIT
 
 // File: @openzeppelin/contracts/utils/Context.sol
-
 
 // OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)
 
@@ -136,7 +136,8 @@ abstract contract Ownable is Context {
 
 
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.0;
+
 
 contract Registration is Ownable(msg.sender) {
 

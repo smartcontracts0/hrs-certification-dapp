@@ -12,7 +12,7 @@ import UploadCABDetailsTab from './tabs/UploadCABDetailsTab';
 import BiddingTab from './tabs/BiddingTab';
 import SubmitTestResultsTab from './tabs/SubmitTestResultsTab';
 import SubmitAuditTab from './tabs/SubmitAuditTab';
-import ViewCABActivityTab from './tabs/ViewCABActivityTab';
+import ViewEquipmentTestingStatusTab from './tabs/ViewEquipmentTestingStatusTab';
 
 export default function CABDashboard() {
   const [tab, setTab] = useState('details');
@@ -74,7 +74,7 @@ export default function CABDashboard() {
           <SubmitAuditTab />
         </TabsContent>
         <TabsContent value="activity">
-          <ViewCABActivityTab />
+          <ViewEquipmentTestingStatusTab />
         </TabsContent>
       </Tabs>
     </DashboardShell>
