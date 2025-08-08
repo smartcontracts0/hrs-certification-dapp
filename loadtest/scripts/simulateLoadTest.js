@@ -55,6 +55,7 @@ async function main() {
       await accreditation.connect(deployer).makeAccreditationDecision(equipmentId, 1); txCount++;
       await accreditation.connect(deployer).updateAccreditation(equipmentId, ipfs); txCount++;
       await accreditation.connect(deployer).confirmUpdatedAccreditation(equipmentId, 1); txCount++;
+      await accreditation.connect(deployer).revokeAccreditation(equipmentId); txCount++;
 
       await certification.connect(manufacturer).requestCertification(equipmentId, cab1.address, ipfs); txCount++;
       await certification.connect(deployer).makeCertificationDecision(equipmentId, 1); txCount++;
