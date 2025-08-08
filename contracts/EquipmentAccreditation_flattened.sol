@@ -1,6 +1,6 @@
+// SPDX-License-Identifier: MIT
 
 // File: @openzeppelin/contracts/utils/Context.sol
-
 
 // OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)
 
@@ -136,7 +136,8 @@ abstract contract Ownable is Context {
 
 
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.0;
+
 
 contract Registration is Ownable(msg.sender) {
 
@@ -243,7 +244,9 @@ contract Registration is Ownable(msg.sender) {
 
 
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.0;
+
+
 
 
 contract BiddingContract is Ownable(msg.sender) {
@@ -267,6 +270,8 @@ contract BiddingContract is Ownable(msg.sender) {
         mapping(uint256 => Bid) bids;
         uint256 bestBidAmount;
     }
+
+    mapping(uint256 => uint256) public equipmentToAuction;
 
     uint256 public auctionCounter;
     mapping(uint256 => Auction) public auctions;
@@ -299,6 +304,7 @@ contract BiddingContract is Ownable(msg.sender) {
     function createAuction(uint256 _equipmentId) public onlyRegisteredManufacturers {
         (, address manufacturer, , ) = registration.getEquipmentDetails(_equipmentId);
         require(manufacturer == msg.sender, "You are not the manufacturer of this equipment");
+        require(equipmentToAuction[_equipmentId] == 0, "Auction already created for this equipment");
 
         auctionCounter++;
         Auction storage newAuction = auctions[auctionCounter];
@@ -307,8 +313,12 @@ contract BiddingContract is Ownable(msg.sender) {
         newAuction.active = true;
         newAuction.bestBidAmount = type(uint256).max;
 
+        // Track which auction belongs to which equipment
+        equipmentToAuction[_equipmentId] = auctionCounter;
+
         emit NewAuction(auctionCounter, _equipmentId, msg.sender);
     }
+
 
     // Function to submit a bid
     function submitBid(uint256 _auctionId, uint256 _amount) public onlyRegisteredCABs {
@@ -363,8 +373,8 @@ contract BiddingContract is Ownable(msg.sender) {
     }
 
     // Function to get the winning CAB for an equipment
-    function getWinningCAB(uint256 _equipmentId) public view returns (address) {
-        Auction storage auction = auctions[_equipmentId];
+    function getWinningCAB(uint256 _auctionId) public view returns (address) {
+        Auction storage auction = auctions[_auctionId];
         require(auction.bestBidId != 0, "No winning CAB found");
         return auction.bids[auction.bestBidId].CAB;
     }
@@ -382,7 +392,10 @@ library CommonsLibrary {
 
 
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.0;
+
+
+
 
 contract EquipmentAccreditation is Ownable(msg.sender) {
     using CommonsLibrary for CommonsLibrary.Status;
@@ -415,7 +428,10 @@ contract EquipmentAccreditation is Ownable(msg.sender) {
         require(bytes(_ipfsHash).length == 46, "Invalid IPFS hash length");
         require(!testResults[_equipmentId].exists, "Test results already submitted");
 
-        address winningCAB = bidding.getWinningCAB(_equipmentId);
+        uint256 auctionId = bidding.equipmentToAuction(_equipmentId);
+        require(auctionId != 0, "No auction found for this equipment");
+
+        address winningCAB = bidding.getWinningCAB(auctionId);
         require(msg.sender == winningCAB, "Only the winning CAB can submit test results");
 
         testResults[_equipmentId] = TestResult({
@@ -428,8 +444,9 @@ contract EquipmentAccreditation is Ownable(msg.sender) {
             updatedIpfsHash: ""
         });
 
-        emit TestResultsSubmitted(_equipmentId, msg.sender, _ipfsHash);
-    }
+    emit TestResultsSubmitted(_equipmentId, msg.sender, _ipfsHash);
+}
+
 
     function makeAccreditationDecision(uint256 _equipmentId, CommonsLibrary.Status decision) public onlyOwner {
         TestResult storage result = testResults[_equipmentId];
@@ -456,7 +473,9 @@ contract EquipmentAccreditation is Ownable(msg.sender) {
         require(result.exists, "Test results do not exist");
         require(!result.isRevoked, "Accreditation revoked");
 
+        require(bytes(newIpfsHash).length == 46, "Invalid IPFS hash length");
         result.updatedIpfsHash = newIpfsHash;
+
 
         emit AccreditationUpdated(_equipmentId, newIpfsHash, block.timestamp);
     }

@@ -63,9 +63,12 @@ contract EquipmentCertification is Ownable(msg.sender) {
 
         (, , , , bool accredited) = registration.getCABDetails(_cab);
         (, address winningCAB, , ) = accreditation.getTestResultDetails(_equipmentId);
-
+        (, , , CommonsLibrary.Status testStatus) = accreditation.getTestResultDetails(_equipmentId);
+        require(testStatus == CommonsLibrary.Status.Approved, "Test result not approved");
         require(accredited, "CAB is not accredited");
         require(winningCAB == _cab, "This is not the CAB that tested this equipment");
+
+
 
         certificationRequests[_equipmentId] = CertificationRequest({
             equipmentId: _equipmentId,
@@ -112,9 +115,9 @@ contract EquipmentCertification is Ownable(msg.sender) {
         require(request.exists, "Certification request does not exist");
         require(!request.isRevoked, "Certification is revoked");
         require(request.certificationStatus == CommonsLibrary.Status.Approved, "Only approved certifications can be updated");
-
-
+        require(bytes(newIpfsHash).length == 46, "Invalid IPFS hash length");
         request.updatedIpfsHash = newIpfsHash;
+
 
         emit CertificationUpdated(_equipmentId, newIpfsHash, block.timestamp);
     }

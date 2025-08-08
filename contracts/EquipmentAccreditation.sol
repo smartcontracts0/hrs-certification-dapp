@@ -37,7 +37,10 @@ contract EquipmentAccreditation is Ownable(msg.sender) {
         require(bytes(_ipfsHash).length == 46, "Invalid IPFS hash length");
         require(!testResults[_equipmentId].exists, "Test results already submitted");
 
-        address winningCAB = bidding.getWinningCAB(_equipmentId);
+        uint256 auctionId = bidding.equipmentToAuction(_equipmentId);
+        require(auctionId != 0, "No auction found for this equipment");
+
+        address winningCAB = bidding.getWinningCAB(auctionId);
         require(msg.sender == winningCAB, "Only the winning CAB can submit test results");
 
         testResults[_equipmentId] = TestResult({
@@ -50,8 +53,9 @@ contract EquipmentAccreditation is Ownable(msg.sender) {
             updatedIpfsHash: ""
         });
 
-        emit TestResultsSubmitted(_equipmentId, msg.sender, _ipfsHash);
-    }
+    emit TestResultsSubmitted(_equipmentId, msg.sender, _ipfsHash);
+}
+
 
     function makeAccreditationDecision(uint256 _equipmentId, CommonsLibrary.Status decision) public onlyOwner {
         TestResult storage result = testResults[_equipmentId];
@@ -78,7 +82,9 @@ contract EquipmentAccreditation is Ownable(msg.sender) {
         require(result.exists, "Test results do not exist");
         require(!result.isRevoked, "Accreditation revoked");
 
+        require(bytes(newIpfsHash).length == 46, "Invalid IPFS hash length");
         result.updatedIpfsHash = newIpfsHash;
+
 
         emit AccreditationUpdated(_equipmentId, newIpfsHash, block.timestamp);
     }

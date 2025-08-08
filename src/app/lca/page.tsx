@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
 import {
@@ -12,6 +12,7 @@ import ReviewCertificationTab from './tabs/ReviewCertificationsTab';
 import RevokeCertificationTab from './tabs/RevokeCertificationsTab';
 import ViewCertificationRequestsTab from './tabs/ViewCertificationRequestsTab';
 import ViewAuditLogTab from './tabs/ViewAuditLogTab';
+import ConfirmUpdatedCertificationTab from './tabs/ConfirmUpdatedCertificationTab';
 
 export default function LCADashboard() {
   const [tab, setTab] = useState('review');
@@ -51,6 +52,12 @@ export default function LCADashboard() {
           >
             View Audit Logs
           </TabsTrigger>
+          <TabsTrigger
+            value="update"
+            className="flex-1 text-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 data-[state=active]:bg-black data-[state=active]:text-white transition"
+          >
+            Confirm Certification Update
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="review">
@@ -64,6 +71,9 @@ export default function LCADashboard() {
         </TabsContent>
         <TabsContent value="audit-log">
           <ViewAuditLogTab />
+        </TabsContent>
+        <TabsContent value="update">
+          <ConfirmUpdatedCertificationTab />
         </TabsContent>
       </Tabs>
     </DashboardShell>

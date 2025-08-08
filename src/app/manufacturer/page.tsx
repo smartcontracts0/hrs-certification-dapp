@@ -13,6 +13,7 @@ import CreateAuctionTab from './tabs/CreateAuctionTab';
 import RequestCertificationTab from './tabs/RequestCertificationTab';
 import ViewManufacturerEquipmentTab from './tabs/ViewManufacturerEquipmentTab';
 import SelectBestBidTab from './tabs/SelectBestBidTab';
+import UpdateCertificationInfoTab from './tabs/UpdateCertificationInfoTab'; // ✅ New tab
 
 export default function ManufacturerDashboard() {
   const [tab, setTab] = useState('register');
@@ -24,41 +25,28 @@ export default function ManufacturerDashboard() {
       <Tabs value={tab} onValueChange={setTab} className="w-full">
         {/* Row 1 */}
         <TabsList className="flex gap-2 p-2 bg-white border border-gray-300 rounded-md mb-2">
-          <TabsTrigger
-            value="register"
-            className="flex-1 text-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 data-[state=active]:bg-black data-[state=active]:text-white transition"
-          >
+          <TabsTrigger value="register" className="flex-1 text-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 data-[state=active]:bg-black data-[state=active]:text-white transition">
             Register Equipment
           </TabsTrigger>
-          <TabsTrigger
-            value="auction"
-            className="flex-1 text-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 data-[state=active]:bg-black data-[state=active]:text-white transition"
-          >
+          <TabsTrigger value="auction" className="flex-1 text-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 data-[state=active]:bg-black data-[state=active]:text-white transition">
             Create Auction
           </TabsTrigger>
-          <TabsTrigger
-            value="certify"
-            className="flex-1 text-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 data-[state=active]:bg-black data-[state=active]:text-white transition"
-          >
+          <TabsTrigger value="certify" className="flex-1 text-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 data-[state=active]:bg-black data-[state=active]:text-white transition">
             Request Certification
           </TabsTrigger>
         </TabsList>
 
         {/* Row 2 */}
         <TabsList className="flex gap-2 p-2 bg-white border border-gray-300 rounded-md mb-6">
-          <TabsTrigger
-            value="view"
-            className="flex-1 text-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 data-[state=active]:bg-black data-[state=active]:text-white transition"
-          >
+          <TabsTrigger value="view" className="flex-1 text-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 data-[state=active]:bg-black data-[state=active]:text-white transition">
             View My Equipment
           </TabsTrigger>
-          <TabsTrigger
-            value="select"
-            className="flex-1 text-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 data-[state=active]:bg-black data-[state=active]:text-white transition"
-          >
+          <TabsTrigger value="select" className="flex-1 text-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 data-[state=active]:bg-black data-[state=active]:text-white transition">
             Active Auctions
           </TabsTrigger>
-          <div className="flex-1" /> {/* spacer for symmetry */}
+          <TabsTrigger value="update" className="flex-1 text-center px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 data-[state=active]:bg-black data-[state=active]:text-white transition">
+            Update Certification Info
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="register">
@@ -75,6 +63,9 @@ export default function ManufacturerDashboard() {
         </TabsContent>
         <TabsContent value="select">
           <SelectBestBidTab />
+        </TabsContent>
+        <TabsContent value="update">
+          <UpdateCertificationInfoTab />
         </TabsContent>
       </Tabs>
     </DashboardShell>
