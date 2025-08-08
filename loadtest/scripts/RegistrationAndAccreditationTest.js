@@ -18,12 +18,21 @@ async function main() {
     let success = true;
 
     try {
-      // Create and fund a new CAB wallet
+      // Create and fund a new Manufacturer and CAB wallet
+      const newManufacturer = ethers.Wallet.createRandom().connect(ethers.provider);
       const newCAB = ethers.Wallet.createRandom().connect(ethers.provider);
+
+      await deployer.sendTransaction({
+        to: newManufacturer.address,
+        value: ethers.utils.parseEther("1.0")
+      });
       await deployer.sendTransaction({
         to: newCAB.address,
         value: ethers.utils.parseEther("1.0")
       });
+
+      // Register Manufacturer
+      await registration.connect(deployer).registerManufacturer(newManufacturer.address); txCount++;
 
       // Register CAB
       await registration.connect(deployer).registerCAB(`CAB${i + 1}`, newCAB.address); txCount++;
